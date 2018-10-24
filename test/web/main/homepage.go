@@ -37,9 +37,16 @@ func logins(w http.ResponseWriter, r *http.Request) {
 	sess := globalSessions.SessionStart(w, r)
 	r.ParseForm()
 	if r.Method == "GET" {
-		t, _ := template.ParseFiles("../HTML/login.html")
-		w.Header().Set("Content-Type", "text/html")
-		t.Execute(w, sess.Get("username"))
+		cookie, err := r.Cookie("gosessionid")
+
+		if err == nil {
+			t, _ := template.ParseFiles("../HTML/afterlogin.html")
+			t.Execute(w, sess.GetbySessionID(cookie.Value))
+		} else {
+			t, _ := template.ParseFiles("../HTML/logins.html")
+			w.Header().Set("Content-Type", "text/html")
+			t.Execute(w, sess.Get("username"))
+		}
 	} else {
 		sess.Set("username", r.Form["username"])
 		value, _ := sess.Get("username").(interface{})

@@ -32,6 +32,22 @@ func (st *SessionStore) Get(key interface{}) interface{} {
 	// return nil
 }
 
+func (st *SessionStore) GetbySessionID(sid string) interface{} {
+	if st.sid == sid {
+		return st.value
+	} else {
+		return nil
+	}
+}
+
+func (st *SessionStore) Exist(sid string) bool {
+	if st.sid == sid {
+		return true
+	} else {
+		return false
+	}
+}
+
 func (st *SessionStore) Delete(key interface{}) error {
 	delete(st.value, key)
 	pder.SessionUpdate(st.sid)

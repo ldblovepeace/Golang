@@ -29,6 +29,8 @@ type Session interface {
 	Get(key interface{}) interface{}
 	Delete(key interface{}) error
 	SessionID() string
+	GetbySessionID(sid string) interface{}
+	Exist(sid string) bool
 }
 
 var provides = make(map[string]Provider)
