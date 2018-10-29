@@ -14,7 +14,8 @@ var sessionID int
 
 func init() {
 	var err error
-	Db, err := sql.Open("mysql", "ldb:853126656@tcp(localhost:3306)/ldbsql?charset=utf8")
+	Db, err = sql.Open("mysql", "ldb:853126656@tcp(localhost:3306)/ldbsql?charset=utf8&parseTime=true ")
+	//parseTime=true 将sql timestamp转换为time.Time格式
 
 	if err != nil {
 		log.Fatal(err)
@@ -71,5 +72,8 @@ func (user *User) CreateSession() (session Session) {
 	session.Email = user.Email
 	session.Uuid = user.Uuid
 
-	return
+	stmt, _ := Db.Prepare("insert into sessions set id=?,uuid= ?,email= ?, user_id=?,created_at=?")
+	stmt.Exec(sessionID, user.Uuid, user.Email, user.Id, time.Now())
+
+	return session
 }
