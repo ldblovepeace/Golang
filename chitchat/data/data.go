@@ -16,6 +16,7 @@ func init() {
 	var err error
 	Db, err = sql.Open("mysql", "ldb:853126656@tcp(localhost:3306)/ldbsql?charset=utf8&parseTime=true&loc=Local")
 	//parseTime=true 将sql timestamp转换为time.Time格式
+	//Open内不能有空格, 不然报错。。。。。
 
 	if err != nil {
 		log.Fatal(err)
