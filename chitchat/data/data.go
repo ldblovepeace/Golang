@@ -14,14 +14,14 @@ var sessionID int
 
 func init() {
 	var err error
-	Db, err = sql.Open("mysql", "ldb:853126656@tcp(localhost:3306)/ldbsql?charset=utf8&parseTime=true ")
+	Db, err = sql.Open("mysql", "ldb:853126656@tcp(localhost:3306)/ldbsql?charset=utf8&parseTime=true&loc=Local")
 	//parseTime=true 将sql timestamp转换为time.Time格式
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(Db.Stats())
+	fmt.Println("数据库连接成功")
 	return
 }
 
