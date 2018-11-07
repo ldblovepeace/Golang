@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/ldblovepeace/test/web/action"
 	"github.com/ldblovepeace/test/web/common/session"
@@ -55,11 +57,41 @@ func logins(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//set flash cookie
+func setMassage(w http.ResponseWriter, r *http.Request) {
+	msg := []byte("hello world")
+	c := http.Cookie{
+		Name:  "flash",
+		Value: base64.URLEncoding.EncodeToString(msg),
+	}
+	http.SetCookie(w, &c)
+	fmt.Fprintln(w, "set cookie success")
+}
+
+//get flash cookie
+func getMessage(w http.ResponseWriter, r *http.Request) {
+	c, err := r.Cookie("flash")
+	if err != nil {
+		fmt.Fprintln(w, "no message")
+	} else {
+		rc := http.Cookie{
+			Name:    "flash",
+			MaxAge:  -1,
+			Expires: time.Unix(1, 0),
+		}
+		http.SetCookie(w, &rc) //将name为flash的cookie消除了（maxage = -1）
+		msg, _ := base64.URLEncoding.DecodeString(c.Value)
+		fmt.Fprintln(w, string(msg))
+	}
+}
+
 func main() {
 	http.HandleFunc("/", homepage)          //设置访问的路由
 	http.HandleFunc("/login", action.Login) //设置访问的路由
 	http.HandleFunc("/logins", logins)      //test session
 	http.HandleFunc("/upload", action.Upload)
+	http.HandleFunc("/setMessage", setMassage)
+	http.HandleFunc("/getMessage", getMessage)
 	err := http.ListenAndServe(":9090", nil) //设置监听的端口
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
