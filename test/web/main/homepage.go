@@ -85,6 +85,29 @@ func getMessage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//test template function
+func formatDate(t time.Time) string {
+	layout := "2006-01-02"
+	return t.Format(layout)
+}
+
+func process(w http.ResponseWriter, r *http.Request) {
+	funcMap := template.FuncMap{"fdate": formatDate}
+	t := template.New("../HTML/testfunction.html").Funcs(funcMap)
+	//路径如果不在同一目录下 浏览器会有错误 具体什么原因？？？
+	//纯文本文件的字符编码未声明。如果该文件包含 US-ASCII 范围之外的字符，
+	//该文件将在某些浏览器配置中呈现为乱码。该文件的字符编码需要在传输协议层声明，
+	//或者在文件中加入一个 BOM（字节顺序标记）。
+	t, _ = t.ParseFiles("../HTML/testfunction.html")
+	t.Execute(w, time.Now())
+}
+
+//for test
+func test(w http.ResponseWriter, r *http.Request) {
+	t, _ := template.ParseFiles("../HTML/testfunction.html")
+	t.Execute(w, r)
+}
+
 func main() {
 	http.HandleFunc("/", homepage)          //设置访问的路由
 	http.HandleFunc("/login", action.Login) //设置访问的路由
@@ -92,6 +115,8 @@ func main() {
 	http.HandleFunc("/upload", action.Upload)
 	http.HandleFunc("/setMessage", setMassage)
 	http.HandleFunc("/getMessage", getMessage)
+	http.HandleFunc("/process", process)
+	http.HandleFunc("/test", test)
 	err := http.ListenAndServe(":9090", nil) //设置监听的端口
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
