@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 	"time"
@@ -85,6 +87,14 @@ func getMessage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getCurrentDirectory() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return dir //strings.Replace(dir, "\\", "/", -1)
+}
+
 //test template function
 func formatDate(t time.Time) string {
 	layout := "2006-01-02"
@@ -92,13 +102,15 @@ func formatDate(t time.Time) string {
 }
 
 func process(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(getCurrentDirectory())
 	funcMap := template.FuncMap{"fdate": formatDate}
-	t := template.New("../HTML/testfunction.html").Funcs(funcMap)
+	t := template.New(`../HTML/testfunction.html`).Funcs(funcMap)
 	//路径如果不在同一目录下 浏览器会有错误 具体什么原因？？？
+	//问题就处在这个路径上，路径不能有‘/’
 	//纯文本文件的字符编码未声明。如果该文件包含 US-ASCII 范围之外的字符，
 	//该文件将在某些浏览器配置中呈现为乱码。该文件的字符编码需要在传输协议层声明，
 	//或者在文件中加入一个 BOM（字节顺序标记）。
-	t, _ = t.ParseFiles("../HTML/testfunction.html")
+	t, _ = t.ParseFiles(`../HTML/testfunction.html`)
 	t.Execute(w, time.Now())
 }
 
